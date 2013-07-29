@@ -158,7 +158,6 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 						x=tk.nextToken();
 					}
 					activityname=x;
-				    return activityname;
 				}
 			    //CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
 			    //Log.d(TAG, c.toString());
