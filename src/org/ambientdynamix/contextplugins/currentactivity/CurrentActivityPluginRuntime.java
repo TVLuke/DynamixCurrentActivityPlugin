@@ -142,13 +142,16 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			  try
 			  {
 				Log.d(TAG, "try");
+				Log.d(TAG, "process name "+info.processName);
 			    CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
 			    Log.d(TAG, c.toString());
 			    activityname = c.toString();
+			    Log.d(TAG, "still working");
 			    return c.toString();
 			  }
 			  catch(Exception e) 
 			  {
+				  Log.e(TAG, "Exception");
 			    //Name Not FOund Exception
 			  }
 			}
