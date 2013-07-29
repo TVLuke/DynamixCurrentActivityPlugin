@@ -2,6 +2,7 @@ package org.ambientdynamix.contextplugins.currentactivity;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.UUID;
 
 import org.ambientdynamix.api.contextplugin.*;
@@ -143,11 +144,24 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			  {
 				Log.d(TAG, "try");
 				Log.d(TAG, "process name "+info.processName);
-			    CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
-			    Log.d(TAG, c.toString());
-			    activityname = c.toString();
+				Log.d(TAG, ""+info.importance);
+				if(info.importance==info.IMPORTANCE_FOREGROUND)
+				{
+					Log.d(TAG, "This sound like foreground");
+					activityname=info.processName;
+					StringTokenizer tk = new StringTokenizer(activityname, ".");
+					String x =activityname;
+					while(tk.hasMoreTokens())
+					{
+						x=tk.nextToken();
+					}
+					activityname=x;
+				}
+			    //CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
+			    //Log.d(TAG, c.toString());
+			    //activityname = c.toString();
 			    Log.d(TAG, "still working");
-			    return c.toString();
+			    return activityname;
 			  }
 			  catch(Exception e) 
 			  {
