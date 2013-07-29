@@ -25,7 +25,7 @@ import android.view.WindowManager.LayoutParams;
 
 public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRuntime
 {
-	private final static String TAG = "SCREENSTATUS";
+	private final static String TAG = "CURRENTACTIVITY";
 	private static CurrentActivityPluginRuntime context;
 	private BroadcastReceiver receiver;
 	static String activityname;
@@ -74,6 +74,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		checkForActivity();
 		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.currentactivity"))
 		{
+			Log.d(TAG, "ok, send stuff");
 			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(activityname), PrivacyRiskLevel.LOW);
 			sendContextEvent(requestId, aci, 1000);
 		}
@@ -126,19 +127,23 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	
 	public static String checkForActivity()
 	{
+		Log.d(TAG, "check");
 		if(context!=null)
 		{
+			Log.d(TAG, "context!=null");
 			ActivityManager am = (ActivityManager)context.getSecuredContext().getSystemService(Context.ACTIVITY_SERVICE);
 			List l = am.getRunningAppProcesses();
 			Iterator i = l.iterator();
 			PackageManager pm = context.getSecuredContext().getPackageManager();
 			while(i.hasNext()) 
 			{
+			  Log.d(TAG, "i.hasNext()");
 			  ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
 			  try
 			  {
+				Log.d(TAG, "try");
 			    CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
-			    Log.w("LABEL", c.toString());
+			    Log.d(TAG, c.toString());
 			    activityname = c.toString();
 			    return c.toString();
 			  }
