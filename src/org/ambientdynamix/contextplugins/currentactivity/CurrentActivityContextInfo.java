@@ -82,7 +82,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 		}
 		else if (format.equalsIgnoreCase("XML"))
 		{
-			return "<data><screenstatus>"+result+"</screenstatus></data>";
+			return "<data><currentapplication>"+result+"</currentapplication></data>";
 		}
 		else if (format.equalsIgnoreCase("JSON"))
 		{

@@ -145,8 +145,10 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				Log.d(TAG, "try");
 				Log.d(TAG, "process name "+info.processName);
 				Log.d(TAG, ""+info.importance);
+				boolean foundone=false;
 				if(info.importance==info.IMPORTANCE_FOREGROUND)
 				{
+					foundone=true;
 					Log.d(TAG, "This sound like foreground");
 					activityname=info.processName;
 					StringTokenizer tk = new StringTokenizer(activityname, ".");
@@ -156,6 +158,10 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 						x=tk.nextToken();
 					}
 					activityname=x;
+				}
+				if(!foundone)
+				{
+					activityname="unknown";
 				}
 			    //CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
 			    //Log.d(TAG, c.toString());
