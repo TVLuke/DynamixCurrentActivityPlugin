@@ -136,6 +136,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			List l = am.getRunningAppProcesses();
 			Iterator i = l.iterator();
 			PackageManager pm = context.getSecuredContext().getPackageManager();
+			boolean foundone=false;
 			while(i.hasNext()) 
 			{
 			  Log.d(TAG, "i.hasNext()");
@@ -145,7 +146,6 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				Log.d(TAG, "try");
 				Log.d(TAG, "process name "+info.processName);
 				Log.d(TAG, ""+info.importance);
-				boolean foundone=false;
 				if(info.importance==info.IMPORTANCE_FOREGROUND)
 				{
 					foundone=true;
@@ -158,16 +158,13 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 						x=tk.nextToken();
 					}
 					activityname=x;
-				}
-				if(!foundone)
-				{
-					activityname="unknown";
+				    return activityname;
 				}
 			    //CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
 			    //Log.d(TAG, c.toString());
 			    //activityname = c.toString();
 			    Log.d(TAG, "still working");
-			    return activityname;
+
 			  }
 			  catch(Exception e) 
 			  {
@@ -175,7 +172,11 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			    //Name Not FOund Exception
 			  }
 			}
-			
+			if(!foundone)
+			{
+				activityname="unknown";
+				
+			}
 		}
 		return "";
 	}
