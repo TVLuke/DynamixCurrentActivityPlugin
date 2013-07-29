@@ -1,5 +1,7 @@
-package org.ambientdynamix.contextplugins.screenstatus;
+package org.ambientdynamix.contextplugins.currentactivity;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import org.ambientdynamix.api.contextplugin.*;
@@ -7,10 +9,12 @@ import org.ambientdynamix.api.contextplugin.security.PrivacyRiskLevel;
 import org.ambientdynamix.api.contextplugin.security.SecuredContextInfo;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
@@ -19,12 +23,12 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 
 
-public class ScreenStatusPluginRuntime extends AutoReactiveContextPluginRuntime
+public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRuntime
 {
 	private final static String TAG = "SCREENSTATUS";
-	private static ScreenStatusPluginRuntime context;
+	private static CurrentActivityPluginRuntime context;
 	private BroadcastReceiver receiver;
-
+	static String activityname;
 
 	@Override
 	public void start() 
@@ -67,11 +71,10 @@ public class ScreenStatusPluginRuntime extends AutoReactiveContextPluginRuntime
 	public void handleContextRequest(UUID requestId, String contextInfoType) 
 	{
 		Log.d(TAG, "normal context request");
-		PowerManager powerManager = (PowerManager) this.getSecuredContext().getSystemService(this.getSecuredContext().POWER_SERVICE);
-		boolean screenstatus=powerManager.isScreenOn();
-		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.screenstatus"))
+		checkForActivity();
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.currentactivity"))
 		{
-			SecuredContextInfo aci= new SecuredContextInfo(new ScreenStatusContextInfo(screenstatus), PrivacyRiskLevel.LOW);
+			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(activityname), PrivacyRiskLevel.LOW);
 			sendContextEvent(requestId, aci, 1000);
 		}
 		context=this;
@@ -81,7 +84,7 @@ public class ScreenStatusPluginRuntime extends AutoReactiveContextPluginRuntime
 	public void handleConfiguredContextRequest(UUID requestId, String contextInfoType, Bundle scanConfig) 
 	{
 		Log.d(TAG, "configured context request");
-		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.screenstatus"))
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.currentactivity"))
 		{
 			handleContextRequest(requestId, contextInfoType);
 		}
@@ -93,20 +96,6 @@ public class ScreenStatusPluginRuntime extends AutoReactiveContextPluginRuntime
 	{
 		Log.d(TAG, "init");
 		//timer=new Timer();
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(Intent.ACTION_SCREEN_ON);
-		filter.addAction(Intent.ACTION_SCREEN_OFF);
-		receiver = new BroadcastReceiver() 
-		{
-		    @Override
-		    public void onReceive(Context context, Intent intent) 
-		    {
-		    	boolean x = checkScreen();
-		    	Log.d(TAG, "Update! to "+x);
-		    	sendUpdate(checkScreen());
-		    }
-		  };
-		getSecuredContext().registerReceiver(receiver, filter);
 		context=this;
 		// TODO Auto-generated method stub
 		
@@ -126,24 +115,41 @@ public class ScreenStatusPluginRuntime extends AutoReactiveContextPluginRuntime
 		
 	}
 	
-	public static void sendUpdate(boolean x)
+	public static void sendUpdate(String x)
 	{
-		SecuredContextInfo aci= new SecuredContextInfo(new ScreenStatusContextInfo(x), PrivacyRiskLevel.LOW);
+		SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(x), PrivacyRiskLevel.LOW);
 		if(context!=null)
 		{
 			context.sendBroadcastContextEvent(aci, 1000);
 		}
 	}
 	
-	public static boolean checkScreen()
+	public static String checkForActivity()
 	{
 		if(context!=null)
 		{
-			PowerManager powerManager = (PowerManager) context.getSecuredContext().getSystemService(context.getSecuredContext().POWER_SERVICE);
-			boolean screenstatus=powerManager.isScreenOn();
-			return screenstatus;
+			ActivityManager am = (ActivityManager)context.getSecuredContext().getSystemService(Context.ACTIVITY_SERVICE);
+			List l = am.getRunningAppProcesses();
+			Iterator i = l.iterator();
+			PackageManager pm = context.getSecuredContext().getPackageManager();
+			while(i.hasNext()) 
+			{
+			  ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
+			  try
+			  {
+			    CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
+			    Log.w("LABEL", c.toString());
+			    activityname = c.toString();
+			    return c.toString();
+			  }
+			  catch(Exception e) 
+			  {
+			    //Name Not FOund Exception
+			  }
+			}
+			
 		}
-		return false;
+		return "";
 	}
 
 }

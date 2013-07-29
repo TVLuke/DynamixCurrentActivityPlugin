@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Screen Status Plugin
-Bundle-SymbolicName: org.ambientdynamix.contextplugins.screenstatus
+Bundle-SymbolicName: org.ambientdynamix.contextplugins.currentactivity
 Bundle-Version: 1.0.0
-Export-Package: org.ambientdynamix.contextplugins.screenstatus
+Export-Package: org.ambientdynamix.contextplugins.currentactivity
 Import-Package: org.ambientdynamix.api.application,
  org.ambientdynamix.api.contextplugin,
  org.ambientdynamix.api.contextplugin.security

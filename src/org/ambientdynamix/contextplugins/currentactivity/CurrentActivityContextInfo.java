@@ -1,4 +1,4 @@
-package org.ambientdynamix.contextplugins.screenstatus;
+package org.ambientdynamix.contextplugins.currentactivity;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -11,34 +11,34 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class ScreenStatusContextInfo implements IContextInfo, IDeviceScreenContextInfo
+public class CurrentActivityContextInfo implements IContextInfo
 {
 
 	private final String TAG = "SCREENSTATUS";
 	
-	boolean screenstatus;
+	String activity;
 	
-	public static Parcelable.Creator<ScreenStatusContextInfo> CREATOR = new Parcelable.Creator<ScreenStatusContextInfo>() 
+	public static Parcelable.Creator<CurrentActivityContextInfo> CREATOR = new Parcelable.Creator<CurrentActivityContextInfo>() 
 			{
-			public ScreenStatusContextInfo createFromParcel(Parcel in) 
+			public CurrentActivityContextInfo createFromParcel(Parcel in) 
 			{
-				return new ScreenStatusContextInfo(in);
+				return new CurrentActivityContextInfo(in);
 			}
 
-			public ScreenStatusContextInfo[] newArray(int size) 
+			public CurrentActivityContextInfo[] newArray(int size) 
 			{
-				return new ScreenStatusContextInfo[size];
+				return new CurrentActivityContextInfo[size];
 			}
 		};
 		
-	ScreenStatusContextInfo(boolean x)
+	CurrentActivityContextInfo(String x)
 	{
-		screenstatus=x;
+		activity=x;
 	}
 	
-	public ScreenStatusContextInfo(Parcel in) 
+	public CurrentActivityContextInfo(Parcel in) 
 	{
-		screenstatus= in.readByte() == 1;
+		activity = in.readString();
 	}
 
 	@Override
@@ -57,13 +57,13 @@ public class ScreenStatusContextInfo implements IContextInfo, IDeviceScreenConte
 	@Override
 	public void writeToParcel(Parcel out, int flags) 
 	{
-		out.writeByte((byte) (screenstatus ? 1 : 0));
+		out.writeString(activity);
 	}
 
 	@Override
 	public String getContextType() 
 	{
-		return "org.ambientdynamix.contextplugins.context.info.device.screenstatus";
+		return "org.ambientdynamix.contextplugins.context.info.device.currentactivity";
 	}
 
 	@Override
@@ -75,29 +75,13 @@ public class ScreenStatusContextInfo implements IContextInfo, IDeviceScreenConte
 	@Override
 	public String getStringRepresentation(String format) 
 	{
-		String result="";
+		String result=activity;
 		if (format.equalsIgnoreCase("text/plain"))
 		{
-			if(screenstatus)
-			{
-				result="on";
-			}
-			else
-			{
-				result="off";
-			}
 			return result;
 		}
 		else if (format.equalsIgnoreCase("XML"))
 		{
-			if(screenstatus)
-			{
-				result="on";
-			}
-			else
-			{
-				result="off";
-			}
 			return "<data><screenstatus>"+result+"</screenstatus></data>";
 		}
 		else if (format.equalsIgnoreCase("JSON"))
@@ -118,10 +102,9 @@ public class ScreenStatusContextInfo implements IContextInfo, IDeviceScreenConte
 		return formats;
 	}
 
-	@Override
-	public boolean screenOn() 
+	public String currentActivity() 
 	{
-		return screenstatus;
+		return activity;
 	}
 
 }

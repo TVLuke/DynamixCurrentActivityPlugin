@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ambientdynamix.contextplugins.screenstatus;
+package org.ambientdynamix.contextplugins.currentactivity;
 
 import org.ambientdynamix.api.contextplugin.*;
 
@@ -21,6 +21,6 @@ public class PluginFactory extends ContextPluginRuntimeFactory
 {
 	public PluginFactory() 
 	{
-		super(ScreenStatusPluginRuntime.class, null, null);
+		super(CurrentActivityPluginRuntime.class, null, null);
 	}
 }
