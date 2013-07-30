@@ -63,7 +63,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 	@Override
 	public String getContextType() 
 	{
-		return "org.ambientdynamix.contextplugins.context.info.device.currentactivity";
+		return "org.ambientdynamix.contextplugins.context.info.device.frontapplication";
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.ambientdynamix.contextplugins.currentactivity;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -8,6 +9,11 @@ import java.util.UUID;
 import org.ambientdynamix.api.contextplugin.*;
 import org.ambientdynamix.api.contextplugin.security.PrivacyRiskLevel;
 import org.ambientdynamix.api.contextplugin.security.SecuredContextInfo;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -73,7 +79,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	{
 		Log.d(TAG, "normal context request");
 		checkForActivity();
-		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.currentactivity"))
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplication"))
 		{
 			Log.d(TAG, "ok, send stuff");
 			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(activityname), PrivacyRiskLevel.LOW);
@@ -86,7 +92,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void handleConfiguredContextRequest(UUID requestId, String contextInfoType, Bundle scanConfig) 
 	{
 		Log.d(TAG, "configured context request");
-		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.currentactivity"))
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplication"))
 		{
 			handleContextRequest(requestId, contextInfoType);
 		}
@@ -154,6 +160,39 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					String y= info.processName;
 					StringTokenizer tk = new StringTokenizer(y, ".");
 					String x =info.processName;
+					final String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
+					//TODO: get dateiled info from the play store
+					final SAXBuilder builder = new SAXBuilder();
+					new Thread(new Runnable() 
+	                {
+	                    public void run() 
+	                    {
+	                                    // command line should offer URIs or file names
+	                                    try 
+	                                    {
+	                                        Document doc = builder.build(playurl);
+	                                        Element root = doc.getRootElement();
+	                                        exploreChildren(root);
+	                                      // If there are no well-formedness errors, 
+	                                      // then no exception is thrown
+	                                    }
+	                                    // indicates a well-formedness error
+	                                    catch (JDOMException e) 
+	                                    { 
+	                                      Log.d(TAG,playurl + " is not well-formed.");
+	                                      Log.d(TAG,e.getMessage());
+	                                      Log.d(TAG, e.getMessage());
+	                                    }  
+	                                    catch (IOException e) 
+	                                    { 
+	                                      Log.d(TAG,"Could not check " + playurl);
+	                                      Log.d(TAG," because " + e.getMessage());
+	                                      Log.d(TAG, e.getMessage());
+	                                    } 
+	                    	}
+	        
+	                }).start();
+					
 					while(tk.hasMoreTokens())
 					{
 						x=tk.nextToken();
@@ -191,6 +230,26 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			}
 		}
 		return "";
+	}
+	
+	private static void exploreChildren(Element element)
+	{
+		List<Element> children = element.getChildren();
+		Iterator<Element> childrenIterator = children.iterator();
+        while(childrenIterator.hasNext())
+        {
+        	Element child = childrenIterator.next(); 
+        	String name = child.getName();
+        	Log.d(TAG, "name="+name);
+        	List<Attribute> attributes = child.getAttributes();
+        	Iterator<Attribute> attributeIterator = attributes.iterator();
+        	while(attributeIterator.hasNext())
+        	{
+        		Attribute attribute = attributeIterator.next();
+        		Log.d(TAG, "attributes="+attribute.getName()+ " "+attribute.getValue());
+        	}
+        	exploreChildren(child);
+        }
 	}
 
 }
