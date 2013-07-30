@@ -151,8 +151,8 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				{
 					foundone=true;
 					Log.d(TAG, "This sound like foreground");
-					//activityname=info.processName;
-					StringTokenizer tk = new StringTokenizer(activityname, ".");
+					String y= info.processName;
+					StringTokenizer tk = new StringTokenizer(y, ".");
 					String x =info.processName;
 					while(tk.hasMoreTokens())
 					{
