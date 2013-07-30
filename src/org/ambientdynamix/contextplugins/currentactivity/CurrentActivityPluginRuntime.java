@@ -167,25 +167,28 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
                		Log.d(TAG, "Document builder");
                		try
                		{
+               			Log.d(TAG, "get doc");
                			Document doc = builder.build(playurl);
+               			Log.d(TAG, "get root");
                			Element root = doc.getRootElement();
+               			Log.d(TAG, "start exploring");
                			exploreChildren(root);
                			// If there are no well-formedness errors, 
                			// then no exception is thrown
-	                    }
-	                                    // indicates a well-formedness error
-	                                    catch (JDOMException e) 
-	                                    { 
-	                                      Log.d(TAG,playurl + " is not well-formed.");
-	                                      Log.d(TAG,e.getMessage());
-	                                      Log.d(TAG, e.getMessage());
-	                                    }  
-	                                    catch (IOException e) 
-	                                    { 
-	                                      Log.d(TAG,"Could not check " + playurl);
-	                                      Log.d(TAG," because " + e.getMessage());
-	                                      Log.d(TAG, e.getMessage());
-	                                    } 
+	                }
+	                // indicates a well-formedness error
+	                catch (JDOMException e) 
+	                { 
+	                    	Log.d(TAG,playurl + " is not well-formed.");
+	                        Log.d(TAG,e.getMessage());
+	                        Log.d(TAG, e.getMessage());
+	                }  
+	                catch (IOException e) 
+	                { 
+	                    	Log.d(TAG,"Could not check " + playurl);
+	                        Log.d(TAG," because " + e.getMessage());
+	                        Log.d(TAG, e.getMessage());
+	                } 
 					
 					while(tk.hasMoreTokens())
 					{
@@ -228,6 +231,8 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	
 	private static void exploreChildren(Element element)
 	{
+		Log.d(TAG, "");
+		Log.d(TAG, "expore "+element.getName());
 		List<Element> children = element.getChildren();
 		Iterator<Element> childrenIterator = children.iterator();
         while(childrenIterator.hasNext())
