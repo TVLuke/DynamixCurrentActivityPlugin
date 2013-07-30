@@ -162,20 +162,17 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					String x =info.processName;
 					final String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
 					//TODO: get dateiled info from the play store
+					
 					final SAXBuilder builder = new SAXBuilder();
-					new Thread(new Runnable() 
-	                {
-	                    public void run() 
-	                    {
-	                                    // command line should offer URIs or file names
-	                                    try 
-	                                    {
-	                                        Document doc = builder.build(playurl);
-	                                        Element root = doc.getRootElement();
-	                                        exploreChildren(root);
-	                                      // If there are no well-formedness errors, 
-	                                      // then no exception is thrown
-	                                    }
+               		Log.d(TAG, "Document builder");
+               		try
+               		{
+               			Document doc = builder.build(playurl);
+               			Element root = doc.getRootElement();
+               			exploreChildren(root);
+               			// If there are no well-formedness errors, 
+               			// then no exception is thrown
+	                    }
 	                                    // indicates a well-formedness error
 	                                    catch (JDOMException e) 
 	                                    { 
@@ -189,9 +186,6 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	                                      Log.d(TAG," because " + e.getMessage());
 	                                      Log.d(TAG, e.getMessage());
 	                                    } 
-	                    	}
-	        
-	                }).start();
 					
 					while(tk.hasMoreTokens())
 					{
