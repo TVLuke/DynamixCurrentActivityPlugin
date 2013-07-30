@@ -137,6 +137,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			Iterator i = l.iterator();
 			PackageManager pm = context.getSecuredContext().getPackageManager();
 			boolean foundone=false;
+			activityname="";
 			while(i.hasNext()) 
 			{
 			  Log.d(TAG, "i.hasNext()");
@@ -150,9 +151,9 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				{
 					foundone=true;
 					Log.d(TAG, "This sound like foreground");
-					activityname=info.processName;
+					//activityname=info.processName;
 					StringTokenizer tk = new StringTokenizer(activityname, ".");
-					String x =activityname;
+					String x =info.processName;
 					while(tk.hasMoreTokens())
 					{
 						x=tk.nextToken();
