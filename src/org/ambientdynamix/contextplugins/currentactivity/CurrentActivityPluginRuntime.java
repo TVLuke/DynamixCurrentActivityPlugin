@@ -164,7 +164,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					final String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
 					//TODO: get dateiled info from the play store
 					Log.d(TAG, "playurl="+playurl);
-					final SAXBuilder builder = new SAXBuilder();
+					SAXBuilder builder = new SAXBuilder();
                		Log.d(TAG, "Document builder");
                		try
                		{
