@@ -147,7 +147,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				Log.d(TAG, "try");
 				Log.d(TAG, "process name "+info.processName);
 				Log.d(TAG, ""+info.importance);
-				if(info.importance==info.IMPORTANCE_FOREGROUND && !info.processName.startsWith("com.android") && !info.processName.equals("system"))
+				if(info.importance==info.IMPORTANCE_FOREGROUND && !info.processName.equals("com.android.phasebeam"))
 				{
 					foundone=true;
 					Log.d(TAG, "This sound like foreground");
@@ -158,7 +158,19 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					{
 						x=tk.nextToken();
 					}
+					if(info.processName.equals("org.ambientdynamix.core"))
+					{
+						x="ambientdynamix";
+					}
+					if(x.equals("gm"))
+					{
+						x="google mail";
+					}
 					activityname=activityname+" "+x;
+					if(activityname.equals(" system"))
+					{
+						activityname.replace(" system", "");
+					}
 				}
 			    //CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
 			    //Log.d(TAG, c.toString());
