@@ -147,7 +147,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				Log.d(TAG, "try");
 				Log.d(TAG, "process name "+info.processName);
 				Log.d(TAG, ""+info.importance);
-				if(info.importance==info.IMPORTANCE_FOREGROUND && !info.processName.startsWith("com.android"))
+				if(info.importance==info.IMPORTANCE_FOREGROUND && !info.processName.startsWith("com.android") && !info.processName.equals("system"))
 				{
 					foundone=true;
 					Log.d(TAG, "This sound like foreground");
