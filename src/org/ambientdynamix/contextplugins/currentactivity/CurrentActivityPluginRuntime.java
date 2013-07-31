@@ -148,7 +148,23 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					Log.d(TAG, "process name "+info.processName);
 					names.add(info.processName);
 					String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
-					Application a = getApplication(playurl);
+					Application a=null;
+					if(!info.processName.startsWith("com.google.process") 
+							&& !info.processName.startsWith("com.google.android.core") 
+							&& !info.processName.startsWith("com.google.android.deskclock") 
+							&& !info.processName.equals("system") 
+							&& !info.processName.startsWith("com.android.phone") 
+							&& !info.processName.startsWith("com.google.android.inputmethod") 
+							&& !info.processName.startsWith("com.android.location")
+							&& !info.processName.startsWith("com.android.bluetooth")
+							&& !info.processName.startsWith("com.android.phasebeam")
+							&& !info.processName.startsWith("com.android.launcher")
+							&& !info.processName.startsWith("com.android.settings")
+							&& !info.processName.startsWith("android.process")
+							)
+					{
+						a = getApplication(playurl);
+					}
 					Log.d(TAG, ""+info.importance);
 					if(a!=null)
 					{
