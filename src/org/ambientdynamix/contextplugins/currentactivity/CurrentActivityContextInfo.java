@@ -38,6 +38,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 		
 	CurrentActivityContextInfo()
 	{
+		Log.d(TAG, "create new Context Info Object");
 		ConcurrentHashMap<String, Application> aps = CurrentActivityPluginRuntime.getRunningApplications();
 		Set<String> keys = aps.keySet();
 		Iterator<String> it = keys.iterator();
@@ -47,6 +48,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 			Application a = aps.get(key);
 			if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
 			{
+				Log.d(TAG, "put "+a.getAppName()+" in the List");
 				frontactivitys.add(a);
 			}
 		}
@@ -79,7 +81,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 	@Override
 	public String getContextType() 
 	{
-		return "org.ambientdynamix.contextplugins.context.info.device.frontapplication";
+		return "org.ambientdynamix.contextplugins.context.info.device.frontapplications";
 	}
 
 	@Override
