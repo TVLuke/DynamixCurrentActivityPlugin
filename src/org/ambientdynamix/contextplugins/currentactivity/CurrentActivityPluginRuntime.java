@@ -31,6 +31,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	static ArrayList<String> currentApplications = new ArrayList<String>();
 	static ConcurrentHashMap<String, Application> runningApplications = new ConcurrentHashMap<String, Application>();
 	Timer timer;
+	private static boolean checkrunning=false;
 	
 	@Override
 	public void start() 
@@ -132,6 +133,10 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	
 	public static void checkForActivity()
 	{
+		if(!checkrunning)
+		{
+			checkrunning=true;
+		
 		new Thread(new Runnable() 
         {
             public void run() 
@@ -312,8 +317,10 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					}
 				    //Log.d(TAG, "still working");
 				}
+				checkrunning=false;
             }
         }).start();
+		}
 	}
 
 
