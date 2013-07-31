@@ -1,12 +1,17 @@
 package org.ambientdynamix.contextplugins.currentactivity;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.ambientdynamix.api.application.IContextInfo;
 import org.ambientdynamix.contextplugins.context.info.device.IDeviceScreenContextInfo;
 
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -16,7 +21,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 
 	private final String TAG = "SCREENSTATUS";
 	
-	String activity;
+	List<Application> frontactivitys = new ArrayList<Application>();
 	
 	public static Parcelable.Creator<CurrentActivityContextInfo> CREATOR = new Parcelable.Creator<CurrentActivityContextInfo>() 
 			{
@@ -31,14 +36,25 @@ public class CurrentActivityContextInfo implements IContextInfo
 			}
 		};
 		
-	CurrentActivityContextInfo(String x)
+	CurrentActivityContextInfo()
 	{
-		activity=x;
+		ConcurrentHashMap<String, Application> aps = CurrentActivityPluginRuntime.getRunningApplications();
+		Set<String> keys = aps.keySet();
+		Iterator<String> it = keys.iterator();
+		while(it.hasNext())
+		{
+			String key = it.next();
+			Application a = aps.get(key);
+			if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+			{
+				frontactivitys.add(a);
+			}
+		}
 	}
 	
 	public CurrentActivityContextInfo(Parcel in) 
 	{
-		activity = in.readString();
+		in.readList(frontactivitys, getClass().getClassLoader());
 	}
 
 	@Override
@@ -57,7 +73,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 	@Override
 	public void writeToParcel(Parcel out, int flags) 
 	{
-		out.writeString(activity);
+		out.writeList(frontactivitys);
 	}
 
 	@Override
@@ -75,21 +91,37 @@ public class CurrentActivityContextInfo implements IContextInfo
 	@Override
 	public String getStringRepresentation(String format) 
 	{
-		String result=activity;
+		String result="";
 		if (format.equalsIgnoreCase("text/plain"))
 		{
-			return result;
+			for(int i=0; i<frontactivitys.size(); i++)
+			{
+				Application a = frontactivitys.get(i);
+				result=result+a.getAppName()+"\n";
+			}
 		}
 		else if (format.equalsIgnoreCase("XML"))
 		{
-			return "<data><currentapplication>"+result+"</currentapplication></data>";
+			result=result+"<data>\n";
+			for(int i=0; i<frontactivitys.size(); i++)
+			{
+				Application a = frontactivitys.get(i);
+				result=result+" <application>\n";
+				result=result+"  <name>"+a.getAppName()+"</name>\n";
+				result=result+"  <processName>"+a.getProcessName()+"</processName>\n";
+				result=result+"  <description>"+a.getAppDescription()+"</description>\n";
+				result=result+" </application>";
+			}	
+			result=result+"</data>\n";
 		}
 		else if (format.equalsIgnoreCase("JSON"))
 		{
-			return " ";
+			for(int i=0; i<frontactivitys.size(); i++)
+			{
+				
+			}
 		}
-		else
-			return null;
+		return null;
 	}
 
 	@Override
@@ -101,10 +133,4 @@ public class CurrentActivityContextInfo implements IContextInfo
 		formats.add("JSON");
 		return formats;
 	}
-
-	public String currentActivity() 
-	{
-		return activity;
-	}
-
 }

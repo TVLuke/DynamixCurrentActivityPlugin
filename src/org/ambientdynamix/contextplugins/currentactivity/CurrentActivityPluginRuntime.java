@@ -2,11 +2,11 @@ package org.ambientdynamix.contextplugins.currentactivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.ambientdynamix.api.contextplugin.*;
 import org.ambientdynamix.api.contextplugin.security.PrivacyRiskLevel;
@@ -28,8 +28,8 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	private final static String TAG = "CURRENTACTIVITY";
 	private static CurrentActivityPluginRuntime context;
 	private BroadcastReceiver receiver;
-	static Application currentApplication;
-	static HashMap<String, Application> runningApplications = new HashMap<String, Application>();
+	static ArrayList<String> currentApplications = new ArrayList<String>();
+	static ConcurrentHashMap<String, Application> runningApplications = new ConcurrentHashMap<String, Application>();
 	Timer timer;
 	
 	@Override
@@ -77,7 +77,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplication"))
 		{
 			Log.d(TAG, "ok, send stuff");
-			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(currentApplication.getAppName()), PrivacyRiskLevel.LOW);
+			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(), PrivacyRiskLevel.LOW);
 			sendContextEvent(requestId, aci, 1000);
 		}
 		context=this;
@@ -118,9 +118,9 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		
 	}
 	
-	public static void sendUpdate(String x)
+	public static void sendUpdate()
 	{
-		SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(x), PrivacyRiskLevel.LOW);
+		SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(), PrivacyRiskLevel.LOW);
 		if(context!=null)
 		{
 			context.sendBroadcastContextEvent(aci, 1000);
@@ -167,13 +167,17 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 							&& !info.processName.startsWith("org.ambientdynamix.core")
 							&& !info.processName.startsWith("org.google.android.calendar")
 							&& !info.processName.startsWith("com.android.providers.calendar")
-							&& !info.processName.startsWith("com.google.android.brwoser")
+							&& !info.processName.startsWith("com.google.android.browser")
 							&& !info.processName.startsWith("com.android.nfc")
 							&& !info.processName.startsWith("com.google.android.apps.maps:FriendService")
+							&& !info.processName.startsWith("com.google.android.apps.maps:LocationFriendService")
 							&& !info.processName.startsWith("com.google.android.apps.maps:GoogleLocationService")
+							&& !info.processName.startsWith("com.google.android.apps.genie.geniewidget")
 							&& !info.processName.startsWith("com.google.android.gallery3d")
 							&& !info.processName.startsWith("com.google.android.apps.uploader")
 							&& !info.processName.startsWith("de.uniluebeck.itm.dynamixsspbridge")
+							&& !info.processName.startsWith("com.android.defcontainer")
+
 							)
 					{
 						a = getApplication(playurl);
@@ -191,50 +195,26 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 						{
 							x="ambientdynamix";
 						}
-						if(x.equals("gm"))
-						{
-							x="google mail";
-						}
 						if(x.contains("com.google.android."))
 						{
 							x=x.replace("com.google.android.", "");
-							char s = x.charAt(0);
-							String s1 = String.valueOf(s);
-							s1 = s1.toUpperCase();
-							char s2= s1.charAt(0);
-							x=x.replace(x.charAt(0), s2);
 						}
 						if(x.contains("com.android."))
 						{
 							x=x.replace("com.android.", "");
-							char s = x.charAt(0);
-							String s1 = String.valueOf(s);
-							s1 = s1.toUpperCase();
-							char s2= s1.charAt(0);
-							x=x.replace(x.charAt(0), s2);
+
 						}
 						if(x.contains("com.android.providers."))
 						{
 							x=x.replace("com.android.providers.", "");
-							char s = x.charAt(0);
-							String s1 = String.valueOf(s);
-							s1 = s1.toUpperCase();
-							char s2= s1.charAt(0);
-							x=x.replace(x.charAt(0), s2);
 						}
 						if(x.contains("android."))
 						{
 							x=x.replace("android.", "");
-							char s = x.charAt(0);
-							String s1 = String.valueOf(s);
-							s1 = s1.toUpperCase();
-							char s2= s1.charAt(0);
-							x=x.replace(x.charAt(0), s2);
 						}
 						a = new Application("", "", x, "no category", "no description", 0, info.processName);
 					}
 					a.setImportance(info.importance);
-					currentApplication = a;
 					runningApplications.put(a.getAppName(), a);
 				  }
 				  catch(Exception e) 
@@ -255,6 +235,28 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					{
 						Log.d(TAG, a.getProcessName());
 						Log.d(TAG, a.getAppName());
+						//check for all if they are in the arrayList of Names of currently running
+						if(!currentApplications.contains(a.getAppName()) && currentApplications.size()>0)
+						{
+							
+							//if not, send update for new front activity
+							sendUpdate();
+						}
+						//write all the currently running ones in.
+					}
+				}
+				
+				//clear the list
+				currentApplications.clear();
+				//renew the list
+				Iterator<String> it2 = keys.iterator();
+				while(it2.hasNext())
+				{
+					String key = it2.next();
+					Application a = runningApplications.get(key);
+					if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+					{
+						currentApplications.add(a.getAppName());
 					}
 				}
 					
@@ -384,5 +386,10 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			e.printStackTrace();
 		}
 		return a;
+	}
+	
+	public static ConcurrentHashMap<String, Application> getRunningApplications()
+	{
+		return runningApplications;
 	}
 }
