@@ -123,7 +123,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 				
 			}
 		}
-		return null;
+		return result;
 	}
 
 	@Override
