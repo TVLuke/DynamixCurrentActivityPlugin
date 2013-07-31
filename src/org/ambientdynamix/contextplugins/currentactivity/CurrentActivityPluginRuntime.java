@@ -192,12 +192,17 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 									&& !info.processName.startsWith("com.google.android.apps.uploader")
 									&& !info.processName.startsWith("de.uniluebeck.itm.dynamixsspbridge")
 									&& !info.processName.startsWith("com.android.defcontainer")
-		
+									&& !info.processName.startsWith("com.android.vending")
+									&& !info.processName.startsWith("com.android.musicfx")
 									)
 							{
 								if(!runningApplications.containsKey(info.processName))
 								{
 									a = getApplication(playurl);
+								}
+								else
+								{
+									a=runningApplications.get(info.processName);
 								}
 							}
 							//Log.d(TAG, ""+info.importance);
