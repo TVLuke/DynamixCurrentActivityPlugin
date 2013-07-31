@@ -73,7 +73,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void handleContextRequest(UUID requestId, String contextInfoType) 
 	{
 		Log.d(TAG, "normal context request");
-		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplication"))
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplications"))
 		{
 			Log.d(TAG, "ok, send stuff");
 			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(), PrivacyRiskLevel.LOW);
@@ -86,7 +86,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void handleConfiguredContextRequest(UUID requestId, String contextInfoType, Bundle scanConfig) 
 	{
 		Log.d(TAG, "configured context request");
-		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplication"))
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplications"))
 		{
 			handleContextRequest(requestId, contextInfoType);
 		}
@@ -235,7 +235,14 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 								{
 									x=x.replace("android.", "");
 								}
-								a = new Application("", "", x, "no category", "no description", 0, info.processName);
+								if(!runningApplications.containsKey(info.processName))
+								{
+									a = new Application("", "", x, "no category", "no description", 0, info.processName);
+								}
+								else
+								{
+									a=runningApplications.get(info.processName);
+								}
 							}
 							a.setImportance(info.importance);
 							runningApplications.put(info.processName, a);
