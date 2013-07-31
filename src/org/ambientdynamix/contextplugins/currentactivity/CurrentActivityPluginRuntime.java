@@ -73,12 +73,11 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void handleContextRequest(UUID requestId, String contextInfoType) 
 	{
 		Log.d(TAG, "normal context request");
-		checkForActivity();
 		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplication"))
 		{
 			Log.d(TAG, "ok, send stuff");
 			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(), PrivacyRiskLevel.LOW);
-			sendContextEvent(requestId, aci, 1000);
+			sendContextEvent(requestId, aci, 60000);
 		}
 		context=this;
 	}
@@ -129,140 +128,166 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	
 	public static void checkForActivity()
 	{
-		Log.d(TAG, "check");
-		if(context!=null)
-		{
-			Log.d(TAG, "context!=null");
-			ActivityManager am = (ActivityManager)context.getSecuredContext().getSystemService(Context.ACTIVITY_SERVICE);
-			List l = am.getRunningAppProcesses();
-			Iterator i = l.iterator();
-			PackageManager pm = context.getSecuredContext().getPackageManager();
-			boolean foundone=false;
-			ArrayList<String> names = new ArrayList<String>();
-			while(i.hasNext()) 
-			{
-				  Log.d(TAG, "i.hasNext()");
-				  ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
-				  try
-				  {
-					Log.d(TAG, "try");
-					Log.d(TAG, "process name "+info.processName);
-					names.add(info.processName);
-					String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
-					Application a=null;
-					if(!info.processName.startsWith("com.google.process") 
-							&& !info.processName.startsWith("com.google.android.core") 
-							&& !info.processName.startsWith("com.google.android.deskclock") 
-							&& !info.processName.equals("system") 
-							&& !info.processName.startsWith("com.android.phone") 
-							&& !info.processName.startsWith("com.google.android.inputmethod") 
-							&& !info.processName.startsWith("com.android.location")
-							&& !info.processName.startsWith("com.android.bluetooth")
-							&& !info.processName.startsWith("com.android.phasebeam")
-							&& !info.processName.startsWith("com.android.launcher")
-							&& !info.processName.startsWith("com.android.systemui")
-							&& !info.processName.startsWith("com.google.android.gsf")
-							&& !info.processName.startsWith("com.android.settings")
-							&& !info.processName.startsWith("android.process")
-							&& !info.processName.startsWith("org.ambientdynamix.core")
-							&& !info.processName.startsWith("org.google.android.calendar")
-							&& !info.processName.startsWith("com.android.providers.calendar")
-							&& !info.processName.startsWith("com.google.android.browser")
-							&& !info.processName.startsWith("com.android.nfc")
-							&& !info.processName.startsWith("com.google.android.apps.maps:FriendService")
-							&& !info.processName.startsWith("com.google.android.apps.maps:LocationFriendService")
-							&& !info.processName.startsWith("com.google.android.apps.maps:GoogleLocationService")
-							&& !info.processName.startsWith("com.google.android.apps.genie.geniewidget")
-							&& !info.processName.startsWith("com.google.android.gallery3d")
-							&& !info.processName.startsWith("com.google.android.apps.uploader")
-							&& !info.processName.startsWith("de.uniluebeck.itm.dynamixsspbridge")
-							&& !info.processName.startsWith("com.android.defcontainer")
-
-							)
+		new Thread(new Runnable() 
+        {
+            public void run() 
+            {
+				Log.d(TAG, "check");
+				if(context!=null)
+				{
+					//Set the importance to 0 for all apps...
+					if(runningApplications.size()>0)
 					{
-						a = getApplication(playurl);
+						Set<String> keys = runningApplications.keySet();
+						Iterator<String> it = keys.iterator();
+						while(it.hasNext())
+						{
+							String key = it.next();
+							Application a = runningApplications.get(key);
+							a.setImportance(0);
+						}
 					}
-					Log.d(TAG, ""+info.importance);
-					if(a!=null)
+					//Log.d(TAG, "context!=null");
+					ActivityManager am = (ActivityManager)context.getSecuredContext().getSystemService(Context.ACTIVITY_SERVICE);
+					List l = am.getRunningAppProcesses();
+					Iterator i = l.iterator();
+					PackageManager pm = context.getSecuredContext().getPackageManager();
+					boolean foundone=false;
+					ArrayList<String> names = new ArrayList<String>();
+					while(i.hasNext()) 
 					{
+						  //Log.d(TAG, "i.hasNext()");
+						  ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
+						  try
+						  {
+							//Log.d(TAG, "try");
+							//Log.d(TAG, "process name "+info.processName);
+							names.add(info.processName);
+							String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
+							Application a=null;
+							if(!info.processName.startsWith("com.google.process") 
+									&& !info.processName.startsWith("com.google.android.core") 
+									&& !info.processName.startsWith("com.google.android.deskclock") 
+									&& !info.processName.equals("system") 
+									&& !info.processName.startsWith("com.android.phone") 
+									&& !info.processName.startsWith("com.google.android.inputmethod") 
+									&& !info.processName.startsWith("com.android.location")
+									&& !info.processName.startsWith("com.android.bluetooth")
+									&& !info.processName.startsWith("com.android.phasebeam")
+									&& !info.processName.startsWith("com.android.launcher")
+									&& !info.processName.startsWith("com.android.systemui")
+									&& !info.processName.startsWith("com.google.android.gsf")
+									&& !info.processName.startsWith("com.android.settings")
+									&& !info.processName.startsWith("android.process")
+									&& !info.processName.startsWith("org.ambientdynamix.core")
+									&& !info.processName.startsWith("org.google.android.calendar")
+									&& !info.processName.startsWith("com.android.providers.calendar")
+									&& !info.processName.startsWith("com.google.android.browser")
+									&& !info.processName.startsWith("com.android.nfc")
+									&& !info.processName.startsWith("com.google.android.apps.maps:FriendService")
+									&& !info.processName.startsWith("com.google.android.apps.maps:LocationFriendService")
+									&& !info.processName.startsWith("com.google.android.apps.maps:GoogleLocationService")
+									&& !info.processName.startsWith("com.google.android.apps.genie.geniewidget")
+									&& !info.processName.startsWith("com.google.android.gallery3d")
+									&& !info.processName.startsWith("com.google.android.apps.uploader")
+									&& !info.processName.startsWith("de.uniluebeck.itm.dynamixsspbridge")
+									&& !info.processName.startsWith("com.android.defcontainer")
+		
+									)
+							{
+								if(!runningApplications.containsKey(info.processName))
+								{
+									a = getApplication(playurl);
+								}
+							}
+							//Log.d(TAG, ""+info.importance);
+							if(a!=null)
+							{
+								
+							}
+							else
+							{
+								String x =info.processName;
+								//some manual rules...
+								if(info.processName.equals("org.ambientdynamix.core"))
+								{
+									x="ambientdynamix";
+								}
+								if(x.contains("com.google.android."))
+								{
+									x=x.replace("com.google.android.", "");
+								}
+								if(x.contains("com.android."))
+								{
+									x=x.replace("com.android.", "");
+		
+								}
+								if(x.contains("com.android.providers."))
+								{
+									x=x.replace("com.android.providers.", "");
+								}
+								if(x.contains("android."))
+								{
+									x=x.replace("android.", "");
+								}
+								a = new Application("", "", x, "no category", "no description", 0, info.processName);
+							}
+							a.setImportance(info.importance);
+							runningApplications.put(info.processName, a);
+						  }
+						  catch(Exception e) 
+						  {
+							  Log.e(TAG, "Exception");
+						    //Name Not FOund Exception
+						  }
+					}
+					if(runningApplications.size()>0)
+					{
+						Set<String> keys = runningApplications.keySet();
+						Iterator<String> it = keys.iterator();
+						while(it.hasNext())
+						{
+							String key = it.next();
+							Application a = runningApplications.get(key);
+							if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+							{
+								//Log.d(TAG, a.getProcessName());
+								//Log.d(TAG, a.getAppName());
+								//check for all if they are in the arrayList of Names of currently running
+								if(!currentApplications.contains(a.getAppName()) && currentApplications.size()>0)
+								{
+									
+									//if not, send update for new front activity
+									sendUpdate();
+								}
+								//write all the currently running ones in.
+							}
+						}
 						
-					}
-					else
-					{
-						String x =info.processName;
-						//some manual rules...
-						if(info.processName.equals("org.ambientdynamix.core"))
+						//clear the list
+						currentApplications.clear();
+						//renew the list
+						Iterator<String> it2 = keys.iterator();
+						while(it2.hasNext())
 						{
-							x="ambientdynamix";
+							String key = it2.next();
+							Application a = runningApplications.get(key);
+							if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+							{
+								currentApplications.add(a.getAppName());
+							}
+							if(a.importance==0)
+							{
+								Log.d(TAG, "remove "+a.getAppName());
+								runningApplications.remove(key);
+							}
 						}
-						if(x.contains("com.google.android."))
-						{
-							x=x.replace("com.google.android.", "");
-						}
-						if(x.contains("com.android."))
-						{
-							x=x.replace("com.android.", "");
-
-						}
-						if(x.contains("com.android.providers."))
-						{
-							x=x.replace("com.android.providers.", "");
-						}
-						if(x.contains("android."))
-						{
-							x=x.replace("android.", "");
-						}
-						a = new Application("", "", x, "no category", "no description", 0, info.processName);
-					}
-					a.setImportance(info.importance);
-					runningApplications.put(a.getAppName(), a);
-				  }
-				  catch(Exception e) 
-				  {
-					  Log.e(TAG, "Exception");
-				    //Name Not FOund Exception
-				  }
-			}
-			if(runningApplications.size()>0)
-			{
-				Set<String> keys = runningApplications.keySet();
-				Iterator<String> it = keys.iterator();
-				while(it.hasNext())
-				{
-					String key = it.next();
-					Application a = runningApplications.get(key);
-					if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
-					{
-						Log.d(TAG, a.getProcessName());
-						Log.d(TAG, a.getAppName());
-						//check for all if they are in the arrayList of Names of currently running
-						if(!currentApplications.contains(a.getAppName()) && currentApplications.size()>0)
-						{
 							
-							//if not, send update for new front activity
-							sendUpdate();
-						}
-						//write all the currently running ones in.
 					}
+				    //Log.d(TAG, "still working");
 				}
-				
-				//clear the list
-				currentApplications.clear();
-				//renew the list
-				Iterator<String> it2 = keys.iterator();
-				while(it2.hasNext())
-				{
-					String key = it2.next();
-					Application a = runningApplications.get(key);
-					if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
-					{
-						currentApplications.add(a.getAppName());
-					}
-				}
-					
-			}
-		    Log.d(TAG, "still working");
-		}
+            }
+        }).start();
 	}
 
 
@@ -271,7 +296,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		Application a = null;
 		try 
 		{
-			Log.d(TAG, "try "+xx);
+			//Log.d(TAG, "try "+xx);
 			String playurl = xx;
 			String picurl = "";
 			String appName="";
@@ -283,29 +308,29 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			String htmlpage = doc.toString();
 			if(htmlpage.contains("<body>"))
 			{
-				Log.d(TAG, "does contain body");
-				Log.d(TAG, ""+htmlpage.indexOf("<body>"));
+				//Log.d(TAG, "does contain body");
+				//Log.d(TAG, ""+htmlpage.indexOf("<body>"));
 				int start =htmlpage.indexOf("<body>");
 				int end = htmlpage.indexOf("</body>");
 				int length = htmlpage.length();
-				Log.d(TAG, "The page has "+length+"symbols. Start should be at "+start+" and the end at "+end);
-				Log.d(TAG, ""+(end-start));
+				//Log.d(TAG, "The page has "+length+"symbols. Start should be at "+start+" and the end at "+end);
+				//Log.d(TAG, ""+(end-start));
 				htmlpage = htmlpage.substring(start, end);
-				Log.d(TAG, "new length "+htmlpage.length());
+				//Log.d(TAG, "new length "+htmlpage.length());
 				//get the cover url
 				htmlpage = htmlpage.replace("\"", "");			
 				String covercontainer = htmlpage.substring(htmlpage.indexOf("<img class=cover-image"));
-				Log.d(TAG, ""+covercontainer.length());
+				//Log.d(TAG, ""+covercontainer.length());
 				covercontainer  = covercontainer.substring(0, covercontainer.indexOf("</div>"));
 				covercontainer = covercontainer.replace("<img class=cover-image src=", "");
 				covercontainer = covercontainer.replace(" alt=Cover art itemprop=image />", "");
 				picurl=covercontainer;
 				//get the name
 				int x = htmlpage.indexOf("info-container");
-				Log.d(TAG, ""+x);
+				//Log.d(TAG, ""+x);
 				String infocontainer = htmlpage.substring(x);
 				int y = infocontainer.indexOf("details-actions");
-						Log.d(TAG, ""+y);
+				//Log.d(TAG, ""+y);
 				infocontainer = infocontainer.substring(0, y);
 				//Tag.d(TAG, infocontainer);
 				String name = infocontainer.substring(infocontainer.indexOf("<div>"), infocontainer.indexOf("</div>"));
@@ -381,6 +406,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		catch (IOException e) 
 		{
 			Log.d(TAG, "oh noes exception");
+			Log.e(TAG, xx);
 			Log.e(TAG, e.getMessage());
 			// TODO Auto-generated catch block
 			e.printStackTrace();
