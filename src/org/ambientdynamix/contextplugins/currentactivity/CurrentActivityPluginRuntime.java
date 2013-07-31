@@ -1,41 +1,35 @@
 package org.ambientdynamix.contextplugins.currentactivity;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Set;
 import java.util.UUID;
 
 import org.ambientdynamix.api.contextplugin.*;
 import org.ambientdynamix.api.contextplugin.security.PrivacyRiskLevel;
 import org.ambientdynamix.api.contextplugin.security.SecuredContextInfo;
-import org.jdom2.Attribute;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
 
-import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
-
 
 public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRuntime
 {
 	private final static String TAG = "CURRENTACTIVITY";
 	private static CurrentActivityPluginRuntime context;
 	private BroadcastReceiver receiver;
-	static String activityname;
+	static Application currentApplication;
+	static HashMap<String, Application> runningApplications = new HashMap<String, Application>();
 
 	@Override
 	public void start() 
@@ -82,7 +76,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplication"))
 		{
 			Log.d(TAG, "ok, send stuff");
-			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(activityname), PrivacyRiskLevel.LOW);
+			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(currentApplication.getAppName()), PrivacyRiskLevel.LOW);
 			sendContextEvent(requestId, aci, 1000);
 		}
 		context=this;
@@ -132,7 +126,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		}
 	}
 	
-	public static String checkForActivity()
+	public static void checkForActivity()
 	{
 		Log.d(TAG, "check");
 		if(context!=null)
@@ -143,113 +137,181 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			Iterator i = l.iterator();
 			PackageManager pm = context.getSecuredContext().getPackageManager();
 			boolean foundone=false;
-			activityname="";
+			ArrayList<String> names = new ArrayList<String>();
 			while(i.hasNext()) 
 			{
-			  Log.d(TAG, "i.hasNext()");
-			  ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
-			  try
-			  {
-				Log.d(TAG, "try");
-				Log.d(TAG, "process name "+info.processName);
-				Log.d(TAG, ""+info.importance);
-				if(info.importance==info.IMPORTANCE_FOREGROUND && !info.processName.equals("com.android.phasebeam"))
+				  Log.d(TAG, "i.hasNext()");
+				  ActivityManager.RunningAppProcessInfo info = (ActivityManager.RunningAppProcessInfo)(i.next());
+				  try
+				  {
+					Log.d(TAG, "try");
+					Log.d(TAG, "process name "+info.processName);
+					names.add(info.processName);
+					String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
+					Application a = getApplication(playurl);
+					Log.d(TAG, ""+info.importance);
+					if(a!=null)
+					{
+						
+					}
+					else
+					{
+						String x =info.processName;
+						//some manual rules...
+						if(info.processName.equals("org.ambientdynamix.core"))
+						{
+							x="ambientdynamix";
+						}
+						if(x.equals("gm"))
+						{
+							x="google mail";
+						}
+						a = new Application("", "", x, "no category", "no description", 0, info.processName);
+					}
+					a.setImportance(info.importance);
+					currentApplication = a;
+					runningApplications.put(a.getAppName(), a);
+				  }
+				  catch(Exception e) 
+				  {
+					  Log.e(TAG, "Exception");
+				    //Name Not FOund Exception
+				  }
+			}
+			if(runningApplications.size()>0)
+			{
+				Set<String> keys = runningApplications.keySet();
+				Iterator<String> it = keys.iterator();
+				while(it.hasNext())
 				{
-					foundone=true;
-					Log.d(TAG, "This sound like foreground");
-					String y= info.processName;
-					StringTokenizer tk = new StringTokenizer(y, ".");
-					String x =info.processName;
-					Log.d(TAG, "...");
-					final String playurl ="https://play.google.com/store/apps/details?id="+info.processName;
-					//TODO: get dateiled info from the play store
-					Log.d(TAG, "playurl="+playurl);
-					SAXBuilder builder = new SAXBuilder();
-               		Log.d(TAG, "Document builder");
-               		try
-               		{
-               			Log.d(TAG, "get doc");
-               			Document doc = builder.build(playurl);
-               			Log.d(TAG, "get root");
-               			Element root = doc.getRootElement();
-               			Log.d(TAG, "start exploring");
-               			exploreChildren(root);
-               			// If there are no well-formedness errors, 
-               			// then no exception is thrown
-	                }
-	                // indicates a well-formedness error
-	                catch (JDOMException e) 
-	                { 
-	                    	Log.d(TAG,playurl + " is not well-formed.");
-	                        Log.d(TAG,e.getMessage());
-	                        Log.d(TAG, e.getMessage());
-	                }  
-	                catch (IOException e) 
-	                { 
-	                    	Log.d(TAG,"Could not check " + playurl);
-	                        Log.d(TAG," because " + e.getMessage());
-	                        Log.d(TAG, e.getMessage());
-	                } 
-					
-					while(tk.hasMoreTokens())
+					String key = it.next();
+					Application a = runningApplications.get(key);
+					if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND && !a.processName.equals("com.android.phasebeam"))
 					{
-						x=tk.nextToken();
-					}
-					if(info.processName.equals("org.ambientdynamix.core"))
-					{
-						x="ambientdynamix";
-					}
-					if(x.equals("gm"))
-					{
-						x="google mail";
-					}
-					activityname=activityname+" "+x;
-					if(activityname.equals(" system"))
-					{
-						activityname.replace(" system", "");
+						Log.d(TAG, a.getProcessName());
+						Log.d(TAG, a.getAppName());
 					}
 				}
-			    //CharSequence c = pm.getApplicationLabel(pm.getApplicationInfo(info.processName, PackageManager.GET_META_DATA));
-			    //Log.d(TAG, c.toString());
-			    //activityname = c.toString();
-			    Log.d(TAG, "still working");
-
-			  }
-			  catch(Exception e) 
-			  {
-				  Log.e(TAG, "Exception");
-			    //Name Not FOund Exception
-			  }
+					
 			}
-			if(!foundone)
-			{
-				activityname="unknown";
-				
-			}
+		    Log.d(TAG, "still working");
 		}
-		return "";
-	}
-	
-	private static void exploreChildren(Element element)
-	{
-		Log.d(TAG, "");
-		Log.d(TAG, "expore "+element.getName());
-		List<Element> children = element.getChildren();
-		Iterator<Element> childrenIterator = children.iterator();
-        while(childrenIterator.hasNext())
-        {
-        	Element child = childrenIterator.next(); 
-        	String name = child.getName();
-        	Log.d(TAG, "name="+name);
-        	List<Attribute> attributes = child.getAttributes();
-        	Iterator<Attribute> attributeIterator = attributes.iterator();
-        	while(attributeIterator.hasNext())
-        	{
-        		Attribute attribute = attributeIterator.next();
-        		Log.d(TAG, "attributes="+attribute.getName()+ " "+attribute.getValue());
-        	}
-        	exploreChildren(child);
-        }
 	}
 
+
+	private static Application getApplication(String xx)
+	{
+		Application a = null;
+		try 
+		{
+			String playurl = xx;
+			String picurl = "";
+			String appName="";
+			String appCategory="";
+			String appDescription="";
+			int appRating=0;
+			Document doc = Jsoup.connect(playurl).get();
+			List<Node> nodes = doc.childNodes();
+			String htmlpage = doc.toString();
+			if(htmlpage.contains("<body>"))
+			{
+				System.out.println("does contain body");
+				System.out.println(htmlpage.indexOf("<body>"));
+				int start =htmlpage.indexOf("<body>");
+				int end = htmlpage.indexOf("</body>");
+				int length = htmlpage.length();
+				System.out.println("The page has "+length+"symbols. Start should be at "+start+" and the end at "+end);
+				System.out.println(""+(end-start));
+				htmlpage = htmlpage.substring(start, end);
+				System.out.println("new length "+htmlpage.length());
+				//get the cover url
+				htmlpage = htmlpage.replace("\"", "");			
+				String covercontainer = htmlpage.substring(htmlpage.indexOf("<img class=cover-image"));
+				System.out.println(covercontainer.length());
+				covercontainer  = covercontainer.substring(0, covercontainer.indexOf("</div>"));
+				covercontainer = covercontainer.replace("<img class=cover-image src=", "");
+				covercontainer = covercontainer.replace(" alt=Cover art itemprop=image />", "");
+				picurl=covercontainer;
+				//get the name
+				int x = htmlpage.indexOf("info-container");
+				System.out.println(x);
+				String infocontainer = htmlpage.substring(x);
+				int y = infocontainer.indexOf("details-actions");
+						System.out.println(y);
+				infocontainer = infocontainer.substring(0, y);
+				//System.out.println(infocontainer);
+				String name = infocontainer.substring(infocontainer.indexOf("<div>"), infocontainer.indexOf("</div>"));
+				name=name.replace("<div>", "");
+				name=name.trim();
+				appName=name;
+				//get categorie
+				String cat = infocontainer.substring(infocontainer.indexOf("<a class=document-subtitle category"));
+				//System.out.println(cat);
+				cat = cat.substring(cat.indexOf(">"), cat.indexOf("</a>"));
+				cat=cat.replace(">", "");
+				cat=cat.replace("&amp;", "&");
+				//System.out.println(cat);
+				appCategory = cat;
+
+				String descr = htmlpage.substring(htmlpage.indexOf("itemprop=description>"));
+				descr = descr.substring(0, descr.indexOf("</div>"));
+				descr=descr.replace("itemprop=description>", "");
+				descr=descr.replace("<div>", "");
+				descr=descr.trim();
+				descr=descr.replace("<br />", " ");
+				descr=descr.replace("<br>", " ");
+				descr=descr.replace("&uuml;", "ü");
+				descr=descr.replace("&auml;", "ä");
+				descr=descr.replace("&ouml;", "ö");
+				descr=descr.replace("<p>", " ");
+				descr=descr.replace("</p>", " ");
+				descr=descr.replace("•", "");
+				descr=descr.replace("<", "");
+				descr=descr.replace(">", "");
+				descr=descr.replace("a href=", "");
+				descr.replace("            ", " ");
+				descr.replace("           ", " ");
+				descr.replace("          ", " ");
+				descr.replace("         ", " ");
+				descr.replace("        ", " ");
+				descr.replace("       ", " ");
+				descr.replace("      ", " ");
+				descr.replace("     ", " ");
+				descr.replace("    ", " ");
+				descr.replace("   ", " ");
+				descr.replace("  ", " ");
+				descr=descr.replace("\t", "");
+				descr=descr.replace("\n", " ");
+				descr=descr.replace("&quot;", "\"");
+				
+				//System.out.println(descr);
+				appDescription=descr;
+				//System.out.println(htmlpage.substring(10000, 15000));
+				//get rating
+				String rating = htmlpage.substring(htmlpage.indexOf("itemprop=contentRating>"));
+				rating = rating.substring(0, rating.indexOf("</div>"));
+				rating=rating.replace("itemprop=contentRating>", "");
+				
+				if(rating.contains("3"))
+				{
+					appRating=3;
+				}
+				else if(rating.contains("2"))
+				{
+					appRating=2;
+				}
+				else if(rating.contains("1"))
+				{
+					appRating=1;
+				}
+			}
+			a = new Application(playurl, picurl, appName, appCategory, appDescription, appRating, xx);
+		} 
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return a;
+	}
 }
