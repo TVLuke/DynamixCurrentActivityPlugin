@@ -30,7 +30,8 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	private BroadcastReceiver receiver;
 	static Application currentApplication;
 	static HashMap<String, Application> runningApplications = new HashMap<String, Application>();
-
+	Timer timer;
+	
 	@Override
 	public void start() 
 	{
@@ -48,7 +49,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		 * At this point, the plug-in should cancel any ongoing context scans, if there are any.
 		 */
 		Log.i(TAG, "Stopped!");
-		//Timer.stop();
+		Timer.stop();
 	}
 
 	@Override
@@ -97,7 +98,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void init(PowerScheme arg0, ContextPluginSettings arg1) throws Exception 
 	{
 		Log.d(TAG, "init");
-		//timer=new Timer();
+		timer=new Timer();
 		context=this;
 		// TODO Auto-generated method stub
 		
@@ -163,6 +164,9 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 							&& !info.processName.startsWith("com.google.android.gsf")
 							&& !info.processName.startsWith("com.android.settings")
 							&& !info.processName.startsWith("android.process")
+							&& !info.processName.startsWith("org.ambientdynamix.core")
+							&& !info.processName.startsWith("org.google.android.calendar")
+							&& !info.processName.startsWith("org..android.providers.calendar")
 							)
 					{
 						a = getApplication(playurl);
@@ -329,6 +333,8 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		} 
 		catch (IOException e) 
 		{
+			Log.d(TAG, "oh noes exception");
+			Log.e(TAG, e.getMessage());
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
