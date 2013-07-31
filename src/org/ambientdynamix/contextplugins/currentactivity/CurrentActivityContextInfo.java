@@ -48,7 +48,9 @@ public class CurrentActivityContextInfo implements IContextInfo
 			Application a = aps.get(key);
 			if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
 			{
+				
 				Log.d(TAG, "put "+a.getAppName()+" in the List");
+				
 				frontactivitys.add(a);
 			}
 		}

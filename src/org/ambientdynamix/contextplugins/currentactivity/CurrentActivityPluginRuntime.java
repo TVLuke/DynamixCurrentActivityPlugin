@@ -39,6 +39,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		 * Nothing to do, since this is a pull plug-in... we're now waiting for context scan requests.
 		 */
 		context=this;
+		timer=new Timer();
 		Log.i(TAG, "Started!");
 	}
 
@@ -73,10 +74,11 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void handleContextRequest(UUID requestId, String contextInfoType) 
 	{
 		Log.d(TAG, "normal context request");
+		checkForActivity();
 		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplications"))
 		{
 			Log.d(TAG, "ok, send stuff");
-			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(), PrivacyRiskLevel.LOW);
+			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(), PrivacyRiskLevel.HIGH);
 			sendContextEvent(requestId, aci, 60000);
 		}
 		context=this;
@@ -86,6 +88,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void handleConfiguredContextRequest(UUID requestId, String contextInfoType, Bundle scanConfig) 
 	{
 		Log.d(TAG, "configured context request");
+		checkForActivity();
 		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplications"))
 		{
 			handleContextRequest(requestId, contextInfoType);
@@ -99,6 +102,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		Log.d(TAG, "init");
 		timer=new Timer();
 		context=this;
+		checkForActivity();
 		// TODO Auto-generated method stub
 		
 	}
@@ -114,7 +118,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	public void doManualContextScan() 
 	{
 		// TODO Auto-generated method stub
-		
+		checkForActivity();
 	}
 	
 	public static void sendUpdate()
@@ -200,10 +204,12 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 								if(!runningApplications.containsKey(info.processName))
 								{
 									a = getApplication(playurl);
+									a.setImportance(info.importance);
 								}
 								else
 								{
 									a=runningApplications.get(info.processName);
+									a.setImportance(info.importance);
 								}
 							}
 							//Log.d(TAG, ""+info.importance);
@@ -236,13 +242,19 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 								{
 									x=x.replace("android.", "");
 								}
+								if(x.contains("aps.maps:"))
+								{
+									x=x.replace("aps.maps:", "");
+								}
 								if(!runningApplications.containsKey(info.processName))
 								{
 									a = new Application("", "", x, "no category", "no description", 0, info.processName);
+									a.setImportance(info.importance);
 								}
 								else
 								{
 									a=runningApplications.get(info.processName);
+									a.setImportance(info.importance);
 								}
 							}
 							a.setImportance(info.importance);
@@ -287,6 +299,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 							Application a = runningApplications.get(key);
 							if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
 							{
+								Log.d(TAG, "->"+a.getAppName());
 								currentApplications.add(a.getAppName());
 							}
 							if(a.importance==0)
