@@ -166,7 +166,14 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 							&& !info.processName.startsWith("android.process")
 							&& !info.processName.startsWith("org.ambientdynamix.core")
 							&& !info.processName.startsWith("org.google.android.calendar")
-							&& !info.processName.startsWith("org..android.providers.calendar")
+							&& !info.processName.startsWith("com.android.providers.calendar")
+							&& !info.processName.startsWith("com.google.android.brwoser")
+							&& !info.processName.startsWith("com.android.nfc")
+							&& !info.processName.startsWith("com.google.android.apps.maps:FriendService")
+							&& !info.processName.startsWith("com.google.android.apps.maps:GoogleLocationService")
+							&& !info.processName.startsWith("com.google.android.gallery3d")
+							&& !info.processName.startsWith("com.google.android.apps.uploader")
+							&& !info.processName.startsWith("de.uniluebeck.itm.dynamixsspbridge")
 							)
 					{
 						a = getApplication(playurl);
@@ -187,6 +194,42 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 						if(x.equals("gm"))
 						{
 							x="google mail";
+						}
+						if(x.contains("com.google.android."))
+						{
+							x=x.replace("com.google.android.", "");
+							char s = x.charAt(0);
+							String s1 = String.valueOf(s);
+							s1 = s1.toUpperCase();
+							char s2= s1.charAt(0);
+							x=x.replace(x.charAt(0), s2);
+						}
+						if(x.contains("com.android."))
+						{
+							x=x.replace("com.android.", "");
+							char s = x.charAt(0);
+							String s1 = String.valueOf(s);
+							s1 = s1.toUpperCase();
+							char s2= s1.charAt(0);
+							x=x.replace(x.charAt(0), s2);
+						}
+						if(x.contains("com.android.providers."))
+						{
+							x=x.replace("com.android.providers.", "");
+							char s = x.charAt(0);
+							String s1 = String.valueOf(s);
+							s1 = s1.toUpperCase();
+							char s2= s1.charAt(0);
+							x=x.replace(x.charAt(0), s2);
+						}
+						if(x.contains("android."))
+						{
+							x=x.replace("android.", "");
+							char s = x.charAt(0);
+							String s1 = String.valueOf(s);
+							s1 = s1.toUpperCase();
+							char s2= s1.charAt(0);
+							x=x.replace(x.charAt(0), s2);
 						}
 						a = new Application("", "", x, "no category", "no description", 0, info.processName);
 					}
@@ -328,7 +371,9 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 					appRating=1;
 				}
 			}
-			a = new Application(playurl, picurl, appName, appCategory, appDescription, appRating, xx);
+			String processname=xx.substring(xx.indexOf("?id="));
+			processname=processname.replace("?id=", "");
+			a = new Application(playurl, picurl, appName, appCategory, appDescription, appRating, processname);
 			return a;
 		} 
 		catch (IOException e) 
