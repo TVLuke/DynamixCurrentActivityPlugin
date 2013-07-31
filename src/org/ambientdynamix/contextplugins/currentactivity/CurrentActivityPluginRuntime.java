@@ -159,6 +159,8 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 							&& !info.processName.startsWith("com.android.bluetooth")
 							&& !info.processName.startsWith("com.android.phasebeam")
 							&& !info.processName.startsWith("com.android.launcher")
+							&& !info.processName.startsWith("com.android.systemui")
+							&& !info.processName.startsWith("com.google.android.gsf")
 							&& !info.processName.startsWith("com.android.settings")
 							&& !info.processName.startsWith("android.process")
 							)
@@ -202,7 +204,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				{
 					String key = it.next();
 					Application a = runningApplications.get(key);
-					if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND && !a.processName.equals("com.android.phasebeam"))
+					if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
 					{
 						Log.d(TAG, a.getProcessName());
 						Log.d(TAG, a.getAppName());
@@ -220,6 +222,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		Application a = null;
 		try 
 		{
+			Log.d(TAG, "try "+xx);
 			String playurl = xx;
 			String picurl = "";
 			String appName="";
@@ -231,42 +234,42 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			String htmlpage = doc.toString();
 			if(htmlpage.contains("<body>"))
 			{
-				System.out.println("does contain body");
-				System.out.println(htmlpage.indexOf("<body>"));
+				Log.d(TAG, "does contain body");
+				Log.d(TAG, ""+htmlpage.indexOf("<body>"));
 				int start =htmlpage.indexOf("<body>");
 				int end = htmlpage.indexOf("</body>");
 				int length = htmlpage.length();
-				System.out.println("The page has "+length+"symbols. Start should be at "+start+" and the end at "+end);
-				System.out.println(""+(end-start));
+				Log.d(TAG, "The page has "+length+"symbols. Start should be at "+start+" and the end at "+end);
+				Log.d(TAG, ""+(end-start));
 				htmlpage = htmlpage.substring(start, end);
-				System.out.println("new length "+htmlpage.length());
+				Log.d(TAG, "new length "+htmlpage.length());
 				//get the cover url
 				htmlpage = htmlpage.replace("\"", "");			
 				String covercontainer = htmlpage.substring(htmlpage.indexOf("<img class=cover-image"));
-				System.out.println(covercontainer.length());
+				Log.d(TAG, ""+covercontainer.length());
 				covercontainer  = covercontainer.substring(0, covercontainer.indexOf("</div>"));
 				covercontainer = covercontainer.replace("<img class=cover-image src=", "");
 				covercontainer = covercontainer.replace(" alt=Cover art itemprop=image />", "");
 				picurl=covercontainer;
 				//get the name
 				int x = htmlpage.indexOf("info-container");
-				System.out.println(x);
+				Log.d(TAG, ""+x);
 				String infocontainer = htmlpage.substring(x);
 				int y = infocontainer.indexOf("details-actions");
-						System.out.println(y);
+						Log.d(TAG, ""+y);
 				infocontainer = infocontainer.substring(0, y);
-				//System.out.println(infocontainer);
+				//Tag.d(TAG, infocontainer);
 				String name = infocontainer.substring(infocontainer.indexOf("<div>"), infocontainer.indexOf("</div>"));
 				name=name.replace("<div>", "");
 				name=name.trim();
 				appName=name;
 				//get categorie
 				String cat = infocontainer.substring(infocontainer.indexOf("<a class=document-subtitle category"));
-				//System.out.println(cat);
+				//Tag.d(TAG, cat);
 				cat = cat.substring(cat.indexOf(">"), cat.indexOf("</a>"));
 				cat=cat.replace(">", "");
 				cat=cat.replace("&amp;", "&");
-				//System.out.println(cat);
+				//Tag.d(TAG, cat);
 				appCategory = cat;
 
 				String descr = htmlpage.substring(htmlpage.indexOf("itemprop=description>"));
@@ -300,9 +303,9 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				descr=descr.replace("\n", " ");
 				descr=descr.replace("&quot;", "\"");
 				
-				//System.out.println(descr);
+				//Tag.d(TAG, descr);
 				appDescription=descr;
-				//System.out.println(htmlpage.substring(10000, 15000));
+				//Tag.d(TAG, htmlpage.substring(10000, 15000));
 				//get rating
 				String rating = htmlpage.substring(htmlpage.indexOf("itemprop=contentRating>"));
 				rating = rating.substring(0, rating.indexOf("</div>"));
@@ -322,6 +325,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 				}
 			}
 			a = new Application(playurl, picurl, appName, appCategory, appDescription, appRating, xx);
+			return a;
 		} 
 		catch (IOException e) 
 		{
