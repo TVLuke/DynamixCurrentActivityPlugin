@@ -163,7 +163,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 						{
 							String key = it.next();
 							Application a = runningApplications.get(key);
-							a.setImportance(0);
+							a.setStillRunningFlag(false);
 						}
 					}
 					//Log.d(TAG, "context!=null");
@@ -220,11 +220,13 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 								{
 									a = getApplication(playurl);
 									a.setImportance(info.importance);
+									a.setStillRunningFlag(true);
 								}
 								else
 								{
 									a=runningApplications.get(info.processName);
 									a.setImportance(info.importance);
+									a.setStillRunningFlag(true);
 								}
 							}
 							//Log.d(TAG, ""+info.importance);
@@ -265,14 +267,17 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 								{
 									a = new Application("", "", x, "no category", "no description", 0, info.processName);
 									a.setImportance(info.importance);
+									a.setStillRunningFlag(true);
 								}
 								else
 								{
 									a=runningApplications.get(info.processName);
 									a.setImportance(info.importance);
+									a.setStillRunningFlag(true);
 								}
 							}
 							a.setImportance(info.importance);
+							a.setStillRunningFlag(true);
 							runningApplications.put(info.processName, a);
 						  }
 						  catch(Exception e) 
@@ -317,7 +322,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 								Log.d(TAG, "->"+a.getAppName());
 								currentApplications.add(a.getAppName());
 							}
-							if(a.importance==0)
+							if(!a.getStillRunningFlag())
 							{
 								Log.d(TAG, "remove "+a.getAppName());
 								runningApplications.remove(key);
