@@ -121,10 +121,18 @@ public class CurrentActivityContextInfo implements IContextInfo
 		}
 		else if (format.equalsIgnoreCase("JSON"))
 		{
+			result=result+"{\n";
 			for(int i=0; i<frontactivitys.size(); i++)
 			{
-				
-			}
+				Application a = frontactivitys.get(i);
+				result=result+"  \"application\": {\n";
+				result=result+"  \"name\": \""+a.getAppName()+"\"";
+				result=result+"  \"processName\": \""+a.getProcessName()+"\"";
+				result=result+"  \"description\": \""+a.getAppDescription()+"\"";
+				result=result+"  \"runtime\": \""+a.getRunntime()+"\"";
+				result=result+"  }\n";
+			}	
+			result=result+"}\n";
 		}
 		return result;
 	}
