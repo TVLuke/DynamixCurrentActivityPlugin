@@ -80,7 +80,13 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		{
 			Log.d(TAG, "ok, send stuff");
 			SecuredContextInfo aci= new SecuredContextInfo(new CurrentActivityContextInfo(), PrivacyRiskLevel.HIGH);
-			sendContextEvent(requestId, aci, 60000);
+			sendContextEvent(requestId, aci, 1000);
+		}
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.runningapplications"))
+		{
+			Log.d(TAG, "ok, send stuff");
+			SecuredContextInfo aci= new SecuredContextInfo(new RunningActivitiesContextInfo(), PrivacyRiskLevel.HIGH);
+			sendContextEvent(requestId, aci, 1000);
 		}
 		context=this;
 	}
@@ -91,6 +97,10 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		Log.d(TAG, "configured context request");
 		checkForActivity();
 		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.frontapplications"))
+		{
+			handleContextRequest(requestId, contextInfoType);
+		}
+		if(contextInfoType.equals("org.ambientdynamix.contextplugins.context.info.device.runningapplications"))
 		{
 			handleContextRequest(requestId, contextInfoType);
 		}

@@ -114,6 +114,7 @@ public class CurrentActivityContextInfo implements IContextInfo
 				result=result+"  <name>"+a.getAppName()+"</name>\n";
 				result=result+"  <processName>"+a.getProcessName()+"</processName>\n";
 				result=result+"  <description>"+a.getAppDescription()+"</description>\n";
+				result=result+"  <runtime>"+a.getRunntime()+"</runtime>\n";
 				result=result+" </application>";
 			}	
 			result=result+"</data>\n";
