@@ -49,9 +49,11 @@ public class CurrentActivityContextInfo implements IContextInfo
 			if(a.getImportance()==RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
 			{
 				if(!a.getProcessName().equals("com.android.phone") && !a.getProcessName().equals("com.android.nfc") && !a.getProcessName().equals("system") && !a.getProcessName().equals("com.android.systemui"))
-				Log.d(TAG, "put "+a.getAppName()+" in the List");
+				{
+					Log.d(TAG, "put "+a.getAppName()+" in the List");
 				
-				frontactivitys.add(a);
+					frontactivitys.add(a);
+				}
 			}
 		}
 	}
