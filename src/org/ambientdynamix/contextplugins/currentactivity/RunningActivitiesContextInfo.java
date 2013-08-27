@@ -98,7 +98,7 @@ public class RunningActivitiesContextInfo implements IContextInfo
 		}
 		else if (format.equalsIgnoreCase("XML"))
 		{
-			result=result+"<data>\n";
+			result=result+"";
 			for(int i=0; i<frontactivitys.size(); i++)
 			{
 				Application a = frontactivitys.get(i);
@@ -109,7 +109,7 @@ public class RunningActivitiesContextInfo implements IContextInfo
 				result=result+"  <runtime>"+a.getRunntime()+"</runtime>\n";
 				result=result+" </application>";
 			}	
-			result=result+"</data>\n";
+			result=result+"";
 		}
 		else if (format.equalsIgnoreCase("JSON"))
 		{

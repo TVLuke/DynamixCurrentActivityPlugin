@@ -86,7 +86,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 		{
 			Log.d(TAG, "ok, send stuff");
 			SecuredContextInfo aci= new SecuredContextInfo(new RunningActivitiesContextInfo(), PrivacyRiskLevel.HIGH);
-			sendContextEvent(requestId, aci, 1000);
+			sendContextEvent(requestId, aci, 30000);
 		}
 		context=this;
 	}
