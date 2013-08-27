@@ -1,0 +1,51 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.ping.sample.info.context.contextplugins.ambientdynamix.org"
+    xmlns="http://www.http://www.ping.sample.info.context.contextplugins.ambientdynamix.org">
+    
+    <xs:element name="contextEvent">
+		<xs:complexType>
+            <xs:sequence>
+            	<xs:element name="contextType" maxOccurs="unbounded" minOccurs="1">
+            		<xs:complexType>
+           				<xs:sequence>
+           				    <xs:element name="id" type="xs:string" maxOccurs="1" minOccurs="1"/>
+           				    <xs:element name="createdAt" type="xs:string" maxOccurs="1" minOccurs="1"/>
+           				    <xs:element name="expires" type="xs:string" maxOccurs="1" minOccurs="1"/>
+           				    <xs:element name="expiresAt" type="xs:string" maxOccurs="1" minOccurs="1"/>
+           				    <xs:element name="source">
+           				    	<xs:complexType>
+            						<xs:sequence>
+            							<xs:element name="plugin">
+			           				    	<xs:complexType>
+			            						<xs:sequence>
+			            							   <xs:element name="pluginId" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			            							   <xs:element name="pluginName" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			            						</xs:sequence>
+			           						</xs:complexType>
+			           					</xs:element>
+            						</xs:sequence>
+           						</xs:complexType>
+           					</xs:element>
+           				</xs:sequence>
+           			</xs:complexType>
+            	</xs:element>
+            	<xs:element name="contextData" maxOccurs="unbounded" minOccurs="1">
+            		<xs:complexType>
+           				<xs:sequence>
+           				    <xs:element name="application" maxOccurs="unbounded" minOccurs="1">
+			            		<xs:complexType>
+			           				<xs:sequence>
+			           				    <xs:element name="name" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			           				    <xs:element name="processName" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			           				    <xs:element name="description" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			           				    <xs:element name="runtime" type="xs:string" maxOccurs="1" minOccurs="1"/>
+			           				</xs:sequence>
+			           			</xs:complexType>
+			            	</xs:element>
+           				</xs:sequence>
+           			</xs:complexType>
+            	</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
