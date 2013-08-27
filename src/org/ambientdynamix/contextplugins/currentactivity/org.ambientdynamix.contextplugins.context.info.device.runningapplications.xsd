@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://www.ping.sample.info.context.contextplugins.ambientdynamix.org"
-    xmlns="http://www.http://www.ping.sample.info.context.contextplugins.ambientdynamix.org">
+    targetNamespace="http://www.runningapplications.device.info.context.contextplugins.ambientdynamix.orgrg"
+    xmlns="http://www.runningapplications.device.info.context.contextplugins.ambientdynamix.org">
     
     <xs:element name="contextEvent">
 		<xs:complexType>
