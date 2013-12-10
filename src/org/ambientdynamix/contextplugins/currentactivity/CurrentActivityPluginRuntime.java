@@ -357,12 +357,12 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 			Document doc = Jsoup.connect(playurl).get();
 			List<Node> nodes = doc.childNodes();
 			String htmlpage = doc.toString();
-			if(htmlpage.contains("<body>"))
+			if(htmlpage.contains("<body"))
 			{
 				//Log.d(TAG, "does contain body");
 				//Log.d(TAG, ""+htmlpage.indexOf("<body>"));
-				int start =htmlpage.indexOf("<body>");
-				int end = htmlpage.indexOf("</body>");
+				int start =htmlpage.indexOf("<body");
+				int end = htmlpage.indexOf("</body");
 				int length = htmlpage.length();
 				//Log.d(TAG, "The page has "+length+"symbols. Start should be at "+start+" and the end at "+end);
 				//Log.d(TAG, ""+(end-start));
