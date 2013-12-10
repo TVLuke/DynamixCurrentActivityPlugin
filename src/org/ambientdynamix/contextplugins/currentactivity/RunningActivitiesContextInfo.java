@@ -126,6 +126,26 @@ public class RunningActivitiesContextInfo implements IContextInfo
 			}	
 			result=result+"}\n";
 		}
+		else if(format.equalsIgnoreCase("RDF/XML"))
+		{
+			result="<rdf:RDF\n" +
+					"xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" +
+					"xmlns:z.0=\"http://dynamix.org/semmodel/org.ambientdynamix.contextplugins.currentactivity/0.1/\"\n" +
+					"xmlns:z.1=\"http://dynamix.org/semmodel/0.1/\" > \n";
+			for(int i=0; i<frontactivitys.size(); i++)
+			{
+				Application a = frontactivitys.get(i);
+				result=result+" <rdf:Description rdf:about=\"http://dynamix.org/semmodel/org.ambientdynamix.contextplugins.currentactivity/0.1/application/"+a.getProcessName()+"_"+CurrentActivityPluginRuntime.deviceid+"\">\n";
+				result=result+" <rdf:type>org.ambientdynamix.contextplugins.context.info.device.runningapplications</rdf:type>\n";
+				result=result+"<z.0:hasName>"+a.getAppName()+"</z.0:hasName>\n" +
+							  "<z.0:hasProcessName>"+a.getProcessName()+"</z.0:hasProcessName>\n" +
+							  "<z.0:hasDescription>"+a.getAppDescription()+"</z.0:hasDescription>\n" +				
+							  "<z.0:hasRuntime>"+a.getRunntime()+"</z.0:hasRuntime>\n" +	
+							  "</rdf:Description>\n";
+			}
+			result=result+"</rdf:RDF>";
+			return result;
+		}
 		return result;
 	}
 
@@ -136,6 +156,7 @@ public class RunningActivitiesContextInfo implements IContextInfo
 		formats.add("text/plain");
 		formats.add("XML");
 		formats.add("JSON");
+		formats.add("RDF/XML");
 		return formats;
 	}
 }

@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.util.Log;
 
 public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRuntime
@@ -32,6 +33,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
 	static ConcurrentHashMap<String, Application> runningApplications = new ConcurrentHashMap<String, Application>();
 	Timer timer;
 	private static boolean checkrunning=false;
+	public static String deviceid;
 	
 	@Override
 	public void start() 
@@ -151,6 +153,7 @@ public class CurrentActivityPluginRuntime extends AutoReactiveContextPluginRunti
         {
             public void run() 
             {
+    			deviceid=Secure.getString(context.getSecuredContext().getContentResolver(), Secure.ANDROID_ID); 
 				Log.d(TAG, "check");
 				if(context!=null)
 				{
